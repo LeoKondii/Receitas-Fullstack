@@ -32,8 +32,8 @@ export default function RecipeList() {
         </span>
       </div>
       <div className="recipe-grid">
-        {recipes.map((recipe) => (
-          <RecipeCard key={recipe.idMeal} recipe={recipe} />
+        {recipes.map((recipe, index) => (
+          <RecipeCard key={recipe.id || recipe.idMeal || index} recipe={recipe} />
         ))}
       </div>
     </section>

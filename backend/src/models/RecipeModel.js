@@ -2,18 +2,28 @@ const pool = require("../config/database");
 
 class RecipeModel {
   async search(term) {
-    const result = await pool.query(
-      `SELECT r.*, u.name as author_name,
-        json_agg(json_build_object('name', i.name, 'measure', i.measure)) as ingredients
-       FROM recipes r
-       LEFT JOIN users u ON r.user_id = u.id
-       LEFT JOIN ingredients i ON i.recipe_id = r.id
-       WHERE r.name ILIKE $1
+    const result = await pool.query( //precisa disso para integrar malsdb com o banco local
+      `SELECT
+        r.id::text                             AS "idMeal",
+        r.name                                 AS "strMeal",
+        r.category                             AS "strCategory",
+        r.area                                 AS "strArea",
+        r.instructions                         AS "strInstructions",
+        r.youtube_link                         AS "strYoutube",
+        r.tag                                  AS "strTags",
+        null                                   AS "strMealThumb",
+        json_agg(json_build_object(
+          'name', i.name,
+          'measure', i.measure
+        ))                                     AS ingredients
+      FROM recipes r
+      LEFT JOIN ingredients i ON i.recipe_id = r.id
+      WHERE r.name ILIKE $1
           OR r.category ILIKE $1
           OR r.area ILIKE $1
           OR r.tag ILIKE $1
-       GROUP BY r.id, u.name
-       LIMIT 12`,
+      GROUP BY r.id
+      LIMIT 12`,
       [`%${term}%`]
     );
     return result.rows;

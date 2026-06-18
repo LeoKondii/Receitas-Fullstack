@@ -7,7 +7,7 @@ const logger = require("../config/logger");
 
 const router = express.Router();
 
-const VALID_TAGS = [ //expandir a lista de tags válidas 
+const VALID_TAGS = [
   "vegetariana",
   "bife",
   "frango",
@@ -37,13 +37,39 @@ router.get(
         return res.json(JSON.parse(cached));
       }
 
-      const recipes = await RecipeModel.search(term);
+      // Busca em paralelo nos dois lugares
+      const [mealDbResponse, dbRecipesResult] = await Promise.allSettled([
+        fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(term)}`),
+        RecipeModel.search(term),
+      ]);
 
-      await redis.set(cacheKey, JSON.stringify(recipes), "EX", 300);
+      // Processa resultados do TheMealDB
+      let mealDbResults = [];
+      if (mealDbResponse.status === "fulfilled") {
+        const data = await mealDbResponse.value.json();
+        mealDbResults = data.meals || [];
+        logger.info(`TheMealDB retornou ${mealDbResults.length} resultado(s) para "${term}"`);
+      } else {
+        logger.warn(`TheMealDB falhou: ${mealDbResponse.reason}`);
+      }
 
-      logger.info(`Busca realizada por usuário ${req.userId}: "${term}"`);
+      // Processa resultados do banco
+      let dbResults = [];
+      if (dbRecipesResult.status === "fulfilled") {
+        dbResults = dbRecipesResult.value;
+        logger.info(`Banco retornou ${dbResults.length} resultado(s) para "${term}"`);
+      } else {
+        logger.error(`Banco falhou: ${dbRecipesResult.reason}`);
+      }
 
-      res.json(recipes);
+      // Junta tudo e limita a 12
+      const combined = [...mealDbResults, ...dbResults].slice(0, 12);
+
+      await redis.set(cacheKey, JSON.stringify(combined), "EX", 300);
+
+      logger.info(`Total combinado: ${combined.length} resultado(s)`);
+
+      res.json(combined);
     } catch (err) {
       logger.error(`Erro na busca: ${err.message}`);
       res.status(500).json({ error: "Erro ao buscar receitas" });
@@ -104,6 +130,9 @@ router.post(
       await RecipeModel.addIngredients(recipe.id, ingredients);
 
       const fullRecipe = await RecipeModel.findById(recipe.id);
+
+      // Invalida cache de buscas que possam conter esse nome
+      await redis.del(`search:${name.toLowerCase()}`);
 
       logger.info(`Receita inserida por usuário ${req.userId}: "${name}"`);
 
