@@ -1,5 +1,8 @@
 import { createContext, useContext, useReducer, useCallback, useRef } from "react";
 import { recipeReducer, initialState } from "./recipeReducer";
+import api from "../services/api";
+
+
 
 const RecipeContext = createContext(null);
 
@@ -19,21 +22,47 @@ export function RecipeProvider({ children }) {
       clearTimeout(debounceTimer.current);
     }
 
+    const normalizeRecipe = (recipe) => ({
+      ...recipe,
+      id: recipe.id || recipe.idMeal || null,
+      strMeal: recipe.strMeal || recipe.name || "",
+      strCategory: recipe.strCategory || recipe.category || "",
+      strArea: recipe.strArea || recipe.area || "",
+      strMealThumb: recipe.strMealThumb || recipe.thumbnail || "",
+      strInstructions: recipe.strInstructions || recipe.instructions || "",
+      strYoutube: recipe.strYoutube || recipe.youtube_link || "",
+    });
+
     debounceTimer.current = setTimeout(async () => {
       dispatch({ type: "SET_LOADING", payload: true });
 
       try {
-        const response = await fetch(
-          `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(term.trim())}`
-        );
+        const response = await api.get("/recipes", {
+          params: { s: term.trim() },
+        });
 
-        if (!response.ok) throw new Error("Erro na requisição");
+        const meals = Array.isArray(response.data)
+          ? response.data.map(normalizeRecipe).slice(0, 12)
+          : [];
 
-        const data = await response.json();
-        const meals = data.meals ? data.meals.slice(0, 12) : []; //alterar aqui se quiser mais de 12 resultados
         dispatch({ type: "SET_RECIPES", payload: meals });
-      } catch {
-        dispatch({ type: "SET_ERROR", payload: "Erro ao buscar receitas" });
+      } catch (err) {
+        console.error("Erro na busca local:", err);
+
+        try {
+          const response = await fetch(
+            `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(term.trim())}`
+          );
+
+          if (!response.ok) throw new Error("Erro na requisição do TheMealDB");
+
+          const data = await response.json();
+          const meals = data.meals ? data.meals.map(normalizeRecipe).slice(0, 12) : [];
+          dispatch({ type: "SET_RECIPES", payload: meals });
+        } catch (fallbackErr) {
+          console.error("Erro na busca fallback:", fallbackErr);
+          dispatch({ type: "SET_ERROR", payload: "Erro ao buscar receitas" });
+        }
       }
     }, 400);
   }, []);
