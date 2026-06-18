@@ -7,13 +7,20 @@ const logger = require("../config/logger");
 
 const router = express.Router();
 
-const VALID_TAGS = [ //expandir a lista de tags válidas 
+const VALID_TAGS = [
   "vegetariana",
   "bife",
   "frango",
   "acompanhamento",
   "sobremesa",
   "frutos do mar",
+  "vegana",
+  "massa",
+  "sopa",
+  "salada",
+  "café da manhã",
+  "bebida",
+  "apimentado",
 ];
 
 // GET /api/recipes?s=termo

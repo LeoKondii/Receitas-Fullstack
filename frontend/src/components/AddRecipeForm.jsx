@@ -10,6 +10,13 @@ const TAGS = [
   "acompanhamento",
   "sobremesa",
   "frutos do mar",
+  "vegana",
+  "massa",
+  "sopa",
+  "salada",
+  "café da manhã",
+  "bebida",
+  "apimentado",
 ];
 
 export default function AddRecipeForm({ onClose, onSuccess }) {
