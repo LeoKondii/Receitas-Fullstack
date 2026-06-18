@@ -72,7 +72,7 @@ router.get(
       // Junta tudo e limita a 12
       const combined = [...mealDbResults, ...dbResults].slice(0, 12);
 
-      await redis.set(cacheKey, JSON.stringify(combined), "EX", 300);
+      await redis.set(cacheKey, JSON.stringify(combined), "EX", 30);
 
       logger.info(`Total combinado: ${combined.length} resultado(s)`);
 
@@ -92,7 +92,7 @@ router.post(
     body("name").trim().notEmpty().withMessage("Nome é obrigatório"),
     body("category").trim().notEmpty().withMessage("Categoria é obrigatória"),
     body("area").trim().notEmpty().withMessage("País de origem é obrigatório"),
-    body("instructions").trim().notEmpty().withMessage("Modo de preparo é obrigatório"),
+    body("instructions").trim().notEmpty().escape().withMessage("Modo de preparo é obrigatório"),
     body("tag")
       .trim()
       .notEmpty()
