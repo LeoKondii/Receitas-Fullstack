@@ -19,6 +19,48 @@ const TAGS = [
   "apimentado",
 ];
 
+const AREAS = [
+  "Afeganistão", "África do Sul", "Albânia",
+  "Alemanha", "Andorra", "Angola", "Antígua e Barbuda",
+  "Arábia Saudita", "Argélia", "Argentina", "Armênia",
+  "Austrália", "Áustria", "Azerbaijão", "Bahamas", "Bangladesh",
+  "Barbados", "Barein", "Bélgica", "Belize", "Benim",
+  "Bielorrússia", "Bolívia", "Bósnia e Herzegovina",
+  "Botsuana", "Brasil", "Brunei", "Bulgária", "Burquina Fasso",
+  "Burundi", "Cabo Verde", "Camarões", "Camboja", "Canadá",
+  "Cazaquistão", "Chade", "Chile", "China", "Chipre", "Cingapura",
+  "Colômbia", "Comores", "Coreia do Norte", "Coreia do Sul",
+  "Costa do Marfim", "Costa Rica", "Croácia", "Cuba", "Dinamarca",
+  "Djibuti", "Dominica", "Egito", "Emirados Árabes Unidos", "Equador",
+  "Eritreia", "Eslováquia", "Eslovênia", "Espanha", "Estados Unidos",
+  "Estônia", "Eswatini", "Etiópia", "Fiji", "Filipinas", "Finlândia",
+  "França", "Gabão", "Gâmbia", "Gana", "Geórgia", "Granada", "Grécia",
+  "Guatemala", "Guiana", "Guiné", "Guiné-Bissau", "Guiné Equatorial",
+  "Haiti", "Honduras", "Hungria", "Iêmen", "Ilhas Marshall", "Ilhas Salomão",
+  "Índia", "Indonésia", "Irã", "Iraque", "Irlanda", "Islândia",
+  "Israel", "Itália", "Jamaica", "Japão", "Jordânia", "Kuwait",
+  "Laos", "Lesoto", "Letônia", "Líbano", "Libéria", "Líbia",
+  "Liechtenstein", "Lituânia", "Luxemburgo", "Macedônia do Norte",
+  "Madagascar", "Malásia", "Malavi", "Maldivas", "Mali", "Malta",
+  "Marrocos", "Maurícia", "Mauritânia", "México", "Micronésia",
+  "Moldávia", "Mônaco", "Mongólia", "Montenegro", "Moçambique",
+  "Namíbia", "Nauru", "Nepal", "Nicarágua", "Níger", "Nigéria",
+  "Noruega", "Nova Zelândia", "Omã", "Países Baixos", "Palau", "Panamá",
+  "Papua-Nova Guiné", "Paquistão", "Paraguai", "Peru", "Polônia", "Portugal",
+  "Quênia", "Quirguistão", "Quiribati", "Reino Unido",
+  "República Centro-Africana", "República Checa", "República Democrática do Congo",
+  "República do Congo", "República Dominicana", "Romênia", "Ruanda",
+  "Rússia", "Samoa", "Santa Lúcia", "São Cristóvão e Névis",
+  "São Marino", "São Vicente e Granadinas", "São Tomé e Príncipe",
+  "Senegal", "Sérvia", "Seychelles", "Serra Leoa", "Singapura", "Síria",
+  "Somália", "Sri Lanka", "Suazilândia", "Sudão", "Sudão do Sul",
+  "Suécia", "Suíça", "Suriname", "Tailândia", "Taiwan", "Tajiquistão",
+  "Tanzânia", "Timor-Leste", "Togo", "Tonga", "Trinidad e Tobago",
+  "Tunísia", "Turcomenistão", "Turquia", "Tuvalu", "Ucrânia", "Uganda",
+  "Uruguai", "Uzbequistão", "Vanuatu", "Vaticano", "Venezuela", "Vietnã",
+  "Zâmbia", "Zimbábue"
+];
+
 export default function AddRecipeForm({ onClose, onSuccess }) {
   const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -90,15 +132,20 @@ export default function AddRecipeForm({ onClose, onSuccess }) {
             </div>
 
             <div className="add-recipe-field">
-              <label>País de origem</label>
-              <input
-                type="text"
-                placeholder="Ex: Brazilian"
-                {...register("area", { required: "País é obrigatório" })}
-              />
-              {errors.area && <span className="add-recipe-error">{errors.area.message}</span>}
-            </div>
+            <label>País de origem</label>
+            <select {...register("area", { required: "País é obrigatório" })}>
+              <option value="">Selecione um país</option>
+              {AREAS.map((area) => (
+                <option key={area} value={area}>{area}</option>
+              ))}
+            </select>
+            {errors.area && <span className="add-recipe-error">{errors.area.message}</span>}
           </div>
+          </div>
+
+
+          
+
 
           <div className="add-recipe-field">
             <label>Tag</label>
