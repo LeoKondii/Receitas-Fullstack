@@ -7,7 +7,7 @@ const logger = require("../config/logger");
 
 const router = express.Router();
 
-const VALID_TAGS = [ //expandindo a lista de tags válidas 
+const VALID_TAGS = [ //expandir a lista de tags válidas 
   "vegetariana",
   "bife",
   "frango",
