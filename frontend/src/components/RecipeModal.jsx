@@ -3,6 +3,15 @@ import { useRecipe } from "../contexts/RecipeContext";
 import "./RecipeModal.css";
 
 function getIngredients(recipe) {
+  if (Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
+    return recipe.ingredients
+      .filter((ingredient) => ingredient?.name)
+      .map((ingredient) => ({
+        name: ingredient.name.trim(),
+        measure: ingredient.measure?.trim() || "",
+      }));
+  }
+
   const ingredients = [];
   for (let i = 1; i <= 20; i++) {
     const ingredient = recipe[`strIngredient${i}`];
